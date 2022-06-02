@@ -1,19 +1,26 @@
 USE [DoctorWho]
 
 
+Go
+	DROP FUNCTION IF EXISTS fnCompanions;
 GO
+
 	CREATE FUNCTION fnCompanions (@EpisodeId int)
-	RETURNS TABLE AS
-	RETURN
-		SELECT CompainionName 
-		FROM (tblEpisodeCompainion as EpisodeCompainion
-		INNER JOIN tblCompainion as Compainion ON EpisodeCompainion.CompainionId = Compainion.CompainionId)
-		WHERE EpisodeCompainion.EpisodeId =  @EpisodeId;
-GO
+	RETURNS varchar(100) AS
+		BEGIN
+			declare @CompainionNameList varchar(100) = ''
 
-select * from dbo.fnCompanions(4)
+			SELECT @CompainionNameList = @CompainionNameList + 
+															case 
+																when len(@CompainionNameList) > 0 
+																THEN ', ' 
+																ELSE '' 
+															END + CompainionName 
+			FROM (tblEpisodeCompainion as EpisodeCompainion
+			INNER JOIN tblCompainion as Compainion ON EpisodeCompainion.CompainionId = Compainion.CompainionId)
+			WHERE EpisodeCompainion.EpisodeId =  @EpisodeId;
 
+			RETURN @CompainionNameList
+		END
 
-/*
-	DROP FUNCTION dbo.fnCompanions;
-*/
+Go
